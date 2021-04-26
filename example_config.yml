@@ -1,0 +1,57 @@
+# The listen address and port
+bind: 0.0.0.0
+port: 5555
+# Settings for the datawave webserver health poller. Most of these
+# can be left out and will assume their defaults.
+dw_health_poller:
+  # The URL to check for datawave health status
+  check_url: "http://localhost:8080/DataWave/Common/Health/health"
+  # Timeout (float, seconds)
+  check_timeout: 10.0
+  # How often (float, seconds) to pull the web server for health status. Set
+  # to 0.0 to poll the webserver every time the agent is asked for status.
+  interval: 1.0
+  # The HAProxy agent response to send when the datawave web server is down
+  # and cannot be connected to. This must be a valid HAProxy agent response
+  # string. See the following URL for details:
+  # http://cbonte.github.io/haproxy-dconv/2.2/configuration.html#agent-check
+  down_response: "down"
+  # The HAProxy agent response to send when the datawave web server health
+  # enpoint reports a 503 error. This can happen when either the maximum number
+  # of connections are used/waiting, or if a shutdown of the webserver is in
+  # progress. The string must be a valid HAProxy agent response string. See the
+  # following URL for details:
+  # http://cbonte.github.io/haproxy-dconv/2.2/configuration.html#agent-check
+  unavailable_response: "drain"
+  # Weight reduction factor (float, [0.0,1.0]) for query connection usage. The
+  # weight starts out as 100% (1.0). The percentage of query connections used
+  # by the web server is multiplied by this number (so if 80% of the
+  # connections are used, this reduction will be 0.7*0.8 = 0.56) and then
+  # subtracted from the current calculated weight. The final weight is capped
+  # at a minimum of 1% since a value of 0% indicates drain mode for the server.
+  connection_usage_reduction: 0.7
+  # Weight reduction factor (float, [0.0,1.0]) for OS load on the web server.
+  # The weight starts out at 100% (1.0). The OS load (as returned by the
+  # datawave health endpoint: a float in [0.0,1.0]) is multiplied by this
+  # number, and the result is subtracted from the current calculated weight.
+  # The final weight is capped at a minimum of 1% since a value of 0% indicates
+  # drain mode for the server.
+  os_load_reduction: 0.4
+  # A weight reduction factor (float, [0.0,1.0]) for swap usage on the web
+  # server. The weight starts out at 100% (1.0). If the datawave webservice
+  # health endpoint reports that the server is using any swap, then this factor
+  # is subtracted from the calculated weight. The final weight is capped at a
+  # minimum of 1% since a value of 0% indicates drain mode for the server.
+  swap_usage_reduction: 0.3
+  # How long (int, seconds) before the last received response from the
+  # web server is considered stale and the staleness_response value should
+  # be returned instead. If set to 0, then the staleness check is disabled.
+  staleness_interval: 10
+  # The HAProxy agent response to send when the datawave web server cannot
+  # be checked within the staleness interval. This must be a valid HAProxy
+  # agent response string. See
+  # http://cbonte.github.io/haproxy-dconv/2.2/configuration.html#agent-check
+  # for details.
+  staleness_response: ''
+  # How long (int, seconds) to wait for a graceful shutdown on exit
+  stop_timeout: 0

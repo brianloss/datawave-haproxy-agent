@@ -1,0 +1,3 @@
+urllib3==1.26.4
+gevent==21.1.2
+PyYAML==5.4.1
