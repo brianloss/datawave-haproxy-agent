@@ -83,9 +83,11 @@ class DatawaveWebserverHealthPoller(object):
         Converts the datawave health endpoint response into an HAProxy agent response.
         """
         if response == self.DOWN_RESPONSE:
+            self.logger.debug("Processing down response \"%s\"", self.down_response)
             self.state['agent_response'] = self.down_response
             self.state['timestamp'] = time.time()
         elif response == self.UNAVAILABLE_RESPONSE:
+            self.logger.debug("Processing unavailable response \"%s\"", self.down_response)
             self.state['agent_response'] = self.unavailable_response
             self.state['timestamp'] = time.time()
         elif response:
@@ -94,16 +96,23 @@ class DatawaveWebserverHealthPoller(object):
             status = response['Status']
 
             # Subtract for connection used percentage
-            connection_used_percentage = max(1.0,response['ConnectionUsagePercent'] / 100.0)
-            weight = weight - (connection_used_percentage * self.connection_usage_reduction)
+            connection_used_percentage = min(1.0,response['ConnectionUsagePercent'] / 100.0)
+            connection_reduction = connection_used_percentage * self.connection_usage_reduction
+            weight = weight - connection_reduction
 
             # Subtract for OS load
-            weight = weight - (response['SystemLoad'] * self.os_load_reduction)
+            load_reduction = response['SystemLoad'] * self.os_load_reduction
+            weight = weight - load_reduction
 
             # Subtract for swap usage
+            swap_reduction = 0
             if response['SwapBytesUsed'] > 0:
-                weight = weight - self.swap_usage_reduction
+                swap_reduction = self.swap_usage_reduction
+                weight = weight - swap_reduction
             
+            self.logger.debug("Computed weight %s, cnxn%% reduction %s, load reduction %s, swap reduction %s, orig response %s", \
+                weight, connection_reduction, load_reduction, swap_reduction, response)
+
             # Limit weight at 1%. A 0% weight will mark the server as in drain mode.
             weight = max(0.01, weight)
 
