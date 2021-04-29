@@ -7,7 +7,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='datawave_haproxy_agent',
-    version='0.1.1',
+    version='1.0.0',
     description='Datawave HAProxy Agent',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -16,7 +16,7 @@ setup(
     author_email='brianloss@gmail.com',
 
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'Intended Audience :: System Administrators',
         'Topic :: Internet :: WWW/HTTP :: HTTP Servers',

@@ -25,7 +25,7 @@ class DatawaveWebserverHealthPoller(object):
 
         self.check_url = kwargs.get('check_url', 'http://localhost:8080/DataWave/Common/Health/health')
         self.down_response = kwargs.get('down_response', 'down')
-        self.unavailable_response = kwargs.get('unavailable_response', 'drain')
+        self.unavailable_response = kwargs.get('unavailable_response', '0% drain')
         self.staleness_response = kwargs.get('staleness_response', '')
 
         self.check_timeout = kwargs.get('check_timeout', 10.0)
@@ -113,8 +113,18 @@ class DatawaveWebserverHealthPoller(object):
             self.logger.debug("Computed weight %s, cnxn%% reduction %s, load reduction %s, swap reduction %s, orig response %s", \
                 weight, connection_reduction, load_reduction, swap_reduction, response)
 
-            # Limit weight at 1%. A 0% weight will mark the server as in drain mode.
-            weight = max(0.01, weight)
+            # Set the weight to 0% when the status is drain, since it is the same effect, but will
+            # also cause the server line to be rendered with a blue background in the stats UI.
+            # Otherwise, limit the weight at 1% so that we don't mark the server as in drain mode
+            # if the status does not indicate it should be in drain mode.
+            if status == "drain":
+                weight = 0.0
+            else:
+                weight = max(0.01, weight)
+
+            # Recover from a down/maint status by taking up on to the end of the final status
+            if status == "ready" or status == "drain":
+                status = status + " up"
 
             self.state['agent_response'] = "{weight}% {status}".format(status=status, weight=int(weight*100))
             self.state['timestamp'] = time.time()

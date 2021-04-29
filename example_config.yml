@@ -22,7 +22,7 @@ dw_health_poller:
   # progress. The string must be a valid HAProxy agent response string. See the
   # following URL for details:
   # http://cbonte.github.io/haproxy-dconv/2.2/configuration.html#agent-check
-  unavailable_response: "drain"
+  unavailable_response: "0% drain"
   # Weight reduction factor (float, [0.0,1.0]) for query connection usage. The
   # weight starts out as 100% (1.0). The percentage of query connections used
   # by the web server is multiplied by this number (so if 80% of the
@@ -46,7 +46,7 @@ dw_health_poller:
   # How long (int, seconds) before the last received response from the
   # web server is considered stale and the staleness_response value should
   # be returned instead. If set to 0, then the staleness check is disabled.
-  staleness_interval: 10
+  staleness_interval: 0
   # The HAProxy agent response to send when the datawave web server cannot
   # be checked within the staleness interval. This must be a valid HAProxy
   # agent response string. See
